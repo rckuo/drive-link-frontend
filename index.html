@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head><title>Drive Path Checker</title></head>
+<body>
+  <h2>Paste your Google Drive Link</h2>
+  <form id="drive-form">
+    <input type="text" id="link" placeholder="https://drive.google.com/file/d/..." size="60" required />
+    <button type="submit">Submit</button>
+  </form>
+  <div id="result"></div>
+  <script>
+    document.getElementById("drive-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const link = document.getElementById("link").value;
+      const res = await fetch('https://drive-link-backend.onrender.com/api/drive-path', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ link })
+      });
+      const data = await res.json();
+      document.getElementById("result").innerText = data.path || data.error;
+    });
+  </script>
+</body>
+</html>
