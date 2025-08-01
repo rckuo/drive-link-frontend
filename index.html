@@ -1,25 +1,36 @@
-<!DOCTYPE html>
-<html>
-<head><title>Drive Path Checker</title></head>
-<body>
-  <h2>Paste your Google Drive Link</h2>
-  <form id="drive-form">
-    <input type="text" id="link" placeholder="https://drive.google.com/file/d/..." size="60" required />
-    <button type="submit">Submit</button>
-  </form>
-  <div id="result"></div>
-  <script>
-    document.getElementById("drive-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const link = document.getElementById("link").value;
+<script>
+  document.getElementById("drive-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const link = document.getElementById("link").value;
+    const resultDiv = document.getElementById("result");
+
+    resultDiv.innerText = "⏳ Fetching Drive path...";
+
+    try {
       const res = await fetch('https://drive-link-backend.onrender.com/api/drive-path', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ link })
       });
+
+      if (!res.ok) {
+        throw new Error(`Server responded with status ${res.status}`);
+      }
+
       const data = await res.json();
-      document.getElementById("result").innerText = data.path || data.error;
-    });
-  </script>
-</body>
-</html>
+      console.log("✅ Response from backend:", data);
+
+      if (data.path) {
+        resultDiv.innerText = "✅ Path: " + data.path;
+      } else if (data.error) {
+        resultDiv.innerText = "⚠️ Error: " + data.error;
+      } else {
+        resultDiv.innerText = "⚠️ Unexpected response format.";
+      }
+    } catch (err) {
+      console.error("❌ Fetch failed:", err);
+      resultDiv.innerText = "❌ Error contacting backend. See console for details.";
+    }
+  });
+</script>
+
